@@ -1,10 +1,10 @@
 // TODO: need to fix permutation to only output unique strings
 //       combination should only be on unique characters
-// 		 - will have to build unique character string as member
 // 	     extending this class to do permuation on vectors instead of just strings
 
 #include <iostream>
 #include <cmath>
+#include <map>
 
 using namespace std;
 
@@ -19,25 +19,38 @@ public:
 
 private:
 	const string mStr;
+	string mUniquStr;
 
 	void printAllCombUtil(string prefix, int start);
 	void printAllCombUtil2(string *prefix, int start);
 	void printAllCombUtil3();
 	void printAllCombUtil4();
 
-	void printAllPermUtil(string *prefix, bool *used);
+	void printAllPermUtil(string *prefix, map<char, int> &strMap);
 
 	void printCombUtil(string *prefix, int size, int start);
 };
 
-Combinatorics::Combinatorics(string str) : mStr(str) {}
+Combinatorics::Combinatorics(string str) : mStr(str) {
+	map<char, int> uniqueCharMap;
+
+	for(int i = 0; i < mStr.length(); i++){
+		if (uniqueCharMap.find(mStr[i]) == uniqueCharMap.end()){
+			uniqueCharMap[mStr[i]] = 1;
+		}
+	}
+
+	for(map<char, int>::iterator it = uniqueCharMap.begin(); it != uniqueCharMap.end(); it++) {
+		mUniquStr += it->first;
+	}
+}
 Combinatorics::~Combinatorics(){}
 
 void Combinatorics::printAllCombUtil(string prefix, int start) {
-	for (int i = start; i < mStr.length(); i++){
-		string toPrint = prefix + mStr[i];
+	for (int i = start; i < mUniquStr.length(); i++){
+		string toPrint = prefix + mUniquStr[i];
 		cout << toPrint << endl;
-		if (i+1 < mStr.length()){
+		if (i+1 < mUniquStr.length()){
 			printAllCombUtil(toPrint, i+1);
 		}
 	}
@@ -45,10 +58,10 @@ void Combinatorics::printAllCombUtil(string prefix, int start) {
 }
 
 void Combinatorics::printAllCombUtil2(string *prefix, int start) {
-	for (int i = start; i < mStr.length(); i++){
-		*prefix += mStr[i];
+	for (int i = start; i < mUniquStr.length(); i++){
+		*prefix += mUniquStr[i];
 		cout << *prefix << endl;
-		if (i+1 < mStr.length()) {
+		if (i+1 < mUniquStr.length()) {
 			printAllCombUtil2(prefix, i+1);
 		}
 		*prefix = prefix->substr(0, prefix->length() - 1);
@@ -58,7 +71,7 @@ void Combinatorics::printAllCombUtil2(string *prefix, int start) {
 }
 
 void Combinatorics::printAllCombUtil3() {
-	for (int i = 1; i <= mStr.length(); i++){
+	for (int i = 1; i <= mUniquStr.length(); i++){
 		printCombinations(i);
 	}
 
@@ -66,7 +79,7 @@ void Combinatorics::printAllCombUtil3() {
 }
 
 void Combinatorics::printAllCombUtil4() {
-	for (int i = 1; i < pow(2,mStr.length()); i++){
+	for (int i = 1; i < pow(2,mUniquStr.length()); i++){
 		int mask = 1;
 		int selectionBits = i;
 		int index = 0;
@@ -74,7 +87,7 @@ void Combinatorics::printAllCombUtil4() {
 		while (selectionBits != 0){
 			int select = selectionBits & mask;
 			if (select) {
-				toPrint += mStr[index];
+				toPrint += mUniquStr[index];
 			}
 			selectionBits = selectionBits >> 1;
 			index += 1;
@@ -85,7 +98,7 @@ void Combinatorics::printAllCombUtil4() {
 	return;
 }
 
-// print all combinations of letters in mStr, no empty combination
+// print all combinations of letters in mStr, no empty combination, nor repeated characters
 void Combinatorics::printAllCombinations() {
 	string *buffer = new string();
 
@@ -96,38 +109,9 @@ void Combinatorics::printAllCombinations() {
 	return;
 } 
 
-void Combinatorics::printAllPermUtil(string *prefix, bool *used) {
-	for (int i = 0; i < mStr.length(); i++){
-		if (!used[i]) {
-			*prefix += mStr[i];
-			used[i] = true;
-			if (prefix->length() == mStr.length()) {
-				cout << *prefix << endl;
-			} else {
-				printAllPermUtil(prefix, used);
-			}
-			used[i] = false;
-			*prefix = prefix->substr(0, prefix->length() - 1);
-		}
-	}
-	return;
-}
-
-void Combinatorics::printAllPermutations() {
-	bool *used = new bool[mStr.length()];
-	string *buffer = new string();
-
-	printAllPermUtil(buffer, used);
-
-	delete[] used;
-	delete buffer;
-
-	return;
-} 
-
 void Combinatorics::printCombUtil(string *prefix, int size, int start) {
-	for (int i = start; i < mStr.length() && (mStr.length() - i >= size - prefix->length()); i++){
-		*prefix += mStr[i];
+	for (int i = start; i < mUniquStr.length() && (mUniquStr.length() - i >= size - prefix->length()); i++){
+		*prefix += mUniquStr[i];
 		if(prefix->length() == size){
 			cout << *prefix << endl;
 		} else {
@@ -140,7 +124,7 @@ void Combinatorics::printCombUtil(string *prefix, int size, int start) {
 }
 
 void Combinatorics::printCombinations(int size){
-	if (size > mStr.length()){
+	if (size > mUniquStr.length()){
 		return;
 	}
 
@@ -152,6 +136,44 @@ void Combinatorics::printCombinations(int size){
 
 	return;
 }
+
+void Combinatorics::printAllPermUtil(string *prefix, map<char, int> &strMap) {
+	for (map<char, int>::iterator it = strMap.begin(); it != strMap.end(); it++){
+		char curChar = it->first;
+
+		if (strMap[curChar] != 0) {
+			*prefix += curChar;
+			strMap[curChar] -= 1;
+			if (prefix->length() == mStr.length()) {
+				cout << *prefix << endl;
+			} else {
+				printAllPermUtil(prefix, strMap);
+			}
+			strMap[curChar] += 1;
+			*prefix = prefix->substr(0, prefix->length() - 1);
+		}
+	}
+	return;
+}
+
+void Combinatorics::printAllPermutations() {
+	string *buffer = new string();
+	map<char, int> strMap;
+
+	for(int i = 0; i < mStr.length(); i++){
+		if(strMap.find(mStr[i]) == strMap.end()){
+			strMap[mStr[i]] = 1;
+		} else {
+			strMap[mStr[i]] += 1;
+		}
+	}
+
+	printAllPermUtil(buffer, strMap);
+
+	delete buffer;
+
+	return;
+} 
 
 int main() {
 	string input;
