@@ -1,6 +1,4 @@
-// TODO: need to fix permutation to only output unique strings
-//       combination should only be on unique characters
-// 	     extending this class to do permuation on vectors instead of just strings
+// TODO: extending this class to do permuation on vectors instead of just strings
 
 #include <iostream>
 #include <cmath>
