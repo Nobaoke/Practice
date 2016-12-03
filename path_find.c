@@ -125,7 +125,6 @@ void print_path(int start_i, int start_j, int end_i,int end_j)
 
 void path_find(int start_i, int start_j, int end_i, int end_j){
     find_path(start_i,start_j,end_i,end_j);
-    printf("End Point\n");
     //print_path(start_i,start_j,end_i,end_j);
 }
 

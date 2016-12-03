@@ -1,3 +1,6 @@
+// Warning this implementation is extremely inefficient
+// refer to hintedMarshes for fast version
+
 #include <cmath>
 #include <cstdio>
 #include <vector>
